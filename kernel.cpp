@@ -9,8 +9,14 @@ void printf(char* str) {
     }
 }
 
+typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
+extern "C" void call_constructors() {
+    for (constructor* i = &start_ctors; i != (constructor*)end_ctors; i++) {
+        (*i)();
+    }
+}
 
 /* 
     take in the multiboot structure and the GRUB magic number 

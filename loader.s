@@ -9,10 +9,14 @@
 
 .section .text
 .extern ferglos_Main
+.extern call_constructors
 .global loader
 
 loader:
     mov $kernel_stack, %esp 
+
+    call call_constructors
+    
     push %eax
     push %ebx
     call ferglos_Main
