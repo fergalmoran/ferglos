@@ -1,28 +1,21 @@
-// yip - ya'boy is writing his own printf
-// libc doesn't exist yet so got no choice
+#include "types.h"
 
 void printf(char* str) {
-    unsigned short* vid_mem = (unsigned short*)0xb8000;
-    for (int i = 0; str[i] != '\0'; i++) {
-        //high byte is colour, so just need to copy to text address
-        vid_mem[i] = (vid_mem[i] * 0xFF00) | str[i];
-    }
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+
+    for (int i = 0; str[i] != '\0'; ++i)
+        VideoMemory[i] = (VideoMemory[i] & 0xFF00) | str[i];
 }
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
 extern "C" void call_constructors() {
-    for (constructor* i = &start_ctors; i != (constructor*)end_ctors; i++) {
+    for (constructor* i = &start_ctors; i != &end_ctors; i++)
         (*i)();
-    }
 }
 
-/* 
-    take in the multiboot structure and the GRUB magic number 
-    not sure I actually need magic_num though
-*/
-extern "C" void ferglos_Main(void* mb_struct, unsigned int magic_num) {
+extern "C" void ferglos_Main(const void* multiboot_structure, uint32_t /*mb_mag*/) {
     printf("Hello, Sailor!");
 
     while (1)
