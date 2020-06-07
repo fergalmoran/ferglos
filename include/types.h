@@ -1,3 +1,11 @@
+/* 
+ *  types.h 
+ *  Author: Fergal Moran
+ *  Copyright: 2020 Fergal Moran
+ *  
+ *  BSD License - do what you want
+ */
+
 #ifndef __TYPES_H
 #define __TYPES_H
 

@@ -2,12 +2,12 @@ GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-excep
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objs = loader.o kernel.o
+objs = loader.o gdt.o kernel.o
 
-%.o: %.cpp
+%.o: src/%.cpp
 	g++ $(GPPPARAMS) -o $@ -c $<
 
-%.o: %.s
+%.o: src/%.s
 	as $(ASPARAMS) -o $@ $<
 
 ferglos.bin: linker.ld $(objs)
@@ -21,7 +21,7 @@ ferglos.iso: ferglos.bin
 	echo 'set timeout=0'                      > iso/boot/grub/grub.cfg
 	echo 'set default=0'                     >> iso/boot/grub/grub.cfg
 	echo ''                                  >> iso/boot/grub/grub.cfg
-	echo 'menuentry "My Operating System" {' >> iso/boot/grub/grub.cfg
+	echo 'menuentry "FerglOS" {' 			 >> iso/boot/grub/grub.cfg
 	echo '  multiboot /boot/ferglos.bin'     >> iso/boot/grub/grub.cfg
 	echo '  boot'                            >> iso/boot/grub/grub.cfg
 	echo '}'                                 >> iso/boot/grub/grub.cfg
@@ -29,7 +29,7 @@ ferglos.iso: ferglos.bin
 	rm -rf iso
 
 run: ferglos.iso
-	/usr/lib/virtualbox/VirtualBoxVM --startvm FerglOS
+	/usr/lib/virtualbox/VirtualBoxVM --startvm ferglos
 
 clean:
 	rm -rfv iso *.o *.bin
