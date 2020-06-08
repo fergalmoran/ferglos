@@ -7,6 +7,7 @@
  */
 
 #include "../include/gdt.h"
+#include "../include/interrupts.h"
 #include "../include/types.h"
 
 void printf(char* str) {
@@ -54,6 +55,12 @@ extern "C" void ferglos_Main(const void* multiboot_structure, uint32_t /*mb_mag*
     printf("Hitler blinks.");
 
     GlobalDescriptorTable gdt;
+    InterruptManager interrupts(&gdt);
+
+    //instantiate hardware in here somewhere
+
+    interrupts.Activate();
+
     while (1)
         ;
 }
