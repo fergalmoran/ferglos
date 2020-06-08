@@ -1,167 +1,76 @@
-#include "../include/keyboard.h"
+#include "../include/mouse.h"
+
 #include "../include/stdio.h"
 
-KeyboardDriver::KeyboardDriver(InterruptManager* manager) : InterruptHandler(0x21, manager),
-                                                            _dataport(0x60),
-                                                            _commandport(0x64) {
-    while (_commandport.Read() & 0x01) {
-        _dataport.Read();
-    }
-    _commandport.Write(0xAE);
+MouseDriver::MouseDriver(InterruptManager* manager) : InterruptHandler(0x2C, manager),
+                                                      _dataport(0x60),
+                                                      _commandport(0x64) {
+    _offset = 0;
+    _buttons = 0;
+
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+    //flip bit in center of screen - so mousepointer is initially here
+    _screenX = 40;
+    _screenY = 12;
+
+    VideoMemory[80 * _screenY + _screenX] =
+        (VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4 |
+        (VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4 |
+        (VideoMemory[80 * _screenY + _screenX] & 0x00FF);
+
+    _commandport.Write(0xA8);
     _commandport.Write(0x20);
-    uint8_t status = (_dataport.Read() | 1) & ~0x10;
+    uint8_t status = _dataport.Read() | 2;
     _commandport.Write(0x60);
     _dataport.Write(status);
 
+    _commandport.Write(0xD4);
     _dataport.Write(0xF4);
+    _dataport.Read();
 }
-KeyboardDriver::~KeyboardDriver() {}
+MouseDriver::~MouseDriver() {}
 
-uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
-    uint8_t key = _dataport.Read();
-    if (key < 0x80) {  //ignore key up events
-        switch (key) {
-            case 0xFA:
-            case 0x45:
-            case 0xC5:
-                break;
-            case 0x02:
-                printf("1");
-                break;
-            case 0x03:
-                printf("2");
-                break;
-            case 0x04:
-                printf("3");
-                break;
-            case 0x05:
-                printf("4");
-                break;
-            case 0x06:
-                printf("5");
-                break;
-            case 0x07:
-                printf("6");
-                break;
-            case 0x08:
-                printf("7");
-                break;
-            case 0x09:
-                printf("8");
-                break;
-            case 0x0A:
-                printf("9");
-                break;
-            case 0x0B:
-                printf("0");
-                break;
+uint32_t MouseDriver::HandleInterrupt(uint32_t esp) {
+    uint8_t status = _commandport.Read();
 
-            case 0x10:
-                printf("q");
-                break;
-            case 0x11:
-                printf("w");
-                break;
-            case 0x12:
-                printf("e");
-                break;
-            case 0x13:
-                printf("r");
-                break;
-            case 0x14:
-                printf("t");
-                break;
-            case 0x15:
-                printf("y");
-                break;
-            case 0x16:
-                printf("u");
-                break;
-            case 0x17:
-                printf("i");
-                break;
-            case 0x18:
-                printf("o");
-                break;
-            case 0x19:
-                printf("p");
-                break;
-
-            case 0x1E:
-                printf("a");
-                break;
-            case 0x1F:
-                printf("s");
-                break;
-            case 0x20:
-                printf("d");
-                break;
-            case 0x21:
-                printf("f");
-                break;
-            case 0x22:
-                printf("g");
-                break;
-            case 0x23:
-                printf("h");
-                break;
-            case 0x24:
-                printf("j");
-                break;
-            case 0x25:
-                printf("k");
-                break;
-            case 0x26:
-                printf("l");
-                break;
-
-            case 0x2C:
-                printf("z");
-                break;
-            case 0x2D:
-                printf("x");
-                break;
-            case 0x2E:
-                printf("c");
-                break;
-            case 0x2F:
-                printf("v");
-                break;
-            case 0x30:
-                printf("b");
-                break;
-            case 0x31:
-                printf("n");
-                break;
-            case 0x32:
-                printf("m");
-                break;
-            case 0x33:
-                printf(",");
-                break;
-            case 0x34:
-                printf(".");
-                break;
-            case 0x35:
-                printf("-");
-                break;
-
-            case 0x1C:
-                printf("\n");
-                break;
-            case 0x39:
-                printf(" ");
-                break;
-            default:
-                char* foo = "KEYBOARD 0x00";
-                char* hex = "0123456789ABCDEF";
-                foo[11] = hex[(key >> 4) & 0x0F];
-                foo[12] = hex[key & 0x0F];
-                printf(foo);
-                printf("\n");
-                break;
-        }
+    if (!(status & 0x20)) {
+        return esp;
     }
 
+    _buffer[_offset] = _dataport.Read();
+    _offset = (_offset + 1) % 3;
+
+    //mouse position
+    if (_offset == 0) {
+        static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+
+        //flip bit on screen where mouse cursor is
+        VideoMemory[80 * _screenY + _screenX] =
+            ((VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4) |
+            ((VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4) |
+            ((VideoMemory[80 * _screenY + _screenX] & 0x00FF));
+
+        _screenX += _buffer[1];
+        _screenY -= _buffer[2];
+
+        // check for mouse moving off screen
+        if (_screenX < 0) {
+            _screenX = 0;
+        }
+        if (_screenX >= 80) {
+            _screenX = 79;
+        }
+        if (_screenY < 0) {
+            _screenY = 0;
+        }
+        if (_screenY >= 25) {
+            _screenY = 24;
+        }
+
+        VideoMemory[80 * _screenY + _screenX] =
+            ((VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4) |
+            ((VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4) |
+            ((VideoMemory[80 * _screenY + _screenX] & 0x00FF));
+    }
     return esp;
 }

@@ -2,5 +2,6 @@
 #define __STDIO_H
 
 void printf(const char* str);
+void clear();
 
 #endif

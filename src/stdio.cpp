@@ -25,11 +25,16 @@ void printf(const char* str) {
         }
         //we've reached max screen rows
         if (y > 25) {
-            for (y = 0; y < 25; y++) {
-                for (x - 0; x < 80; x++) {
-                    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xFF00) | ' ';
-                }
-            }
+            clear();
+        }
+    }
+}
+void clear() {
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+    static uint8_t x = 0, y = 0;
+    for (y = 0; y < 25; y++) {
+        for (x = 0; x < 80; x++) {
+            VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xFF00) | ' ';
         }
     }
 }

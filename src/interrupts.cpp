@@ -33,6 +33,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable* gdt)
     // see HandleInterruptRequest in interrupts.s
     SetInterruptDescriptorTableEntries(0x20, codeSegment, &HandleInterruptRequest0x00, 0, IDT_INTERRUPT_GATE);
     SetInterruptDescriptorTableEntries(0x21, codeSegment, &HandleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
+    SetInterruptDescriptorTableEntries(0x2C, codeSegment, &HandleInterruptRequest0x0C, 0, IDT_INTERRUPT_GATE);
 
     _picPrimaryCommand.Write(0x11);
     _picSecondaryCommand.Write(0x11);
