@@ -2,7 +2,7 @@ GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-excep
 ASPARAMS = --32
 LDPARAMS = -melf_i386
 
-objs = stdio.o loader.o gdt.o port.o interruptstubs.o interrupts.o keyboard.o mouse.o kernel.o
+objs = stdio.o loader.o gdt.o driver.o port.o interruptstubs.o interrupts.o keyboard.o echokeyboardhandler.o blockmousehandler.o mouse.o kernel.o
 
 %.o: src/%.cpp
 	g++ $(GPPPARAMS) -o $@ -c $<
@@ -35,4 +35,4 @@ run-qemu: ferglos.iso
 	qemu-system-i386 -boot d -cdrom ferglos.iso -m 512
 
 clean:
-	rm -rfv $(objects) iso *.o *.bin
+	rm -rfv $(objects) iso *.iso *.o *.bin

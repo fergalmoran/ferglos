@@ -2,21 +2,25 @@
 
 #include "../include/stdio.h"
 
-MouseDriver::MouseDriver(InterruptManager* manager) : InterruptHandler(0x2C, manager),
-                                                      _dataport(0x60),
-                                                      _commandport(0x64) {
+MouseEventHandler::MouseEventHandler() {}
+
+void MouseEventHandler::OnActivate() {}
+void MouseEventHandler::OnMouseDown(uint8_t /*button*/) {}
+void MouseEventHandler::OnMouseUp(uint8_t /*button*/) {}
+void MouseEventHandler::OnMouseMove(int /*x*/, int /*y*/) {}
+
+MouseDriver::MouseDriver(
+    InterruptManager* manager,
+    MouseEventHandler* handler) : InterruptHandler(0x2C, manager),
+                                  _dataport(0x60),
+                                  _commandport(0x64) {
+    this->_handler = handler;
+}
+MouseDriver::~MouseDriver() {}
+
+void MouseDriver::Activate() {
     _offset = 0;
     _buttons = 0;
-
-    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
-    //flip bit in center of screen - so mousepointer is initially here
-    _screenX = 40;
-    _screenY = 12;
-
-    VideoMemory[80 * _screenY + _screenX] =
-        (VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4 |
-        (VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4 |
-        (VideoMemory[80 * _screenY + _screenX] & 0x00FF);
 
     _commandport.Write(0xA8);
     _commandport.Write(0x20);
@@ -28,7 +32,6 @@ MouseDriver::MouseDriver(InterruptManager* manager) : InterruptHandler(0x2C, man
     _dataport.Write(0xF4);
     _dataport.Read();
 }
-MouseDriver::~MouseDriver() {}
 
 uint32_t MouseDriver::HandleInterrupt(uint32_t esp) {
     uint8_t status = _commandport.Read();
@@ -38,39 +41,27 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp) {
     }
 
     _buffer[_offset] = _dataport.Read();
+
+    if (_handler == 0) {
+        return esp;
+    }
+
     _offset = (_offset + 1) % 3;
 
     //mouse position
     if (_offset == 0) {
-        static uint16_t* VideoMemory = (uint16_t*)0xb8000;
+        _handler->OnMouseMove(_buffer[1], -_buffer[2]);
 
-        //flip bit on screen where mouse cursor is
-        VideoMemory[80 * _screenY + _screenX] =
-            ((VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4) |
-            ((VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4) |
-            ((VideoMemory[80 * _screenY + _screenX] & 0x00FF));
-
-        _screenX += _buffer[1];
-        _screenY -= _buffer[2];
-
-        // check for mouse moving off screen
-        if (_screenX < 0) {
-            _screenX = 0;
+        for (uint8_t i = 0; i < 3; i++) {
+            if ((_buffer[0] & (0x01 << i)) != (_buttons & (0x01 << i))) {
+                if (_buttons & (0x1 << i)) {
+                    _handler->OnMouseUp(i + 1);
+                } else {
+                    _handler->OnMouseDown(i + 1);
+                }
+            }
         }
-        if (_screenX >= 80) {
-            _screenX = 79;
-        }
-        if (_screenY < 0) {
-            _screenY = 0;
-        }
-        if (_screenY >= 25) {
-            _screenY = 24;
-        }
-
-        VideoMemory[80 * _screenY + _screenX] =
-            ((VideoMemory[80 * _screenY + _screenX] & 0xF000) >> 4) |
-            ((VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4) |
-            ((VideoMemory[80 * _screenY + _screenX] & 0x00FF));
+        _buttons = _buffer[0];
     }
     return esp;
 }

@@ -2,9 +2,21 @@
 
 #include "../include/stdio.h"
 
-KeyboardDriver::KeyboardDriver(InterruptManager* manager) : InterruptHandler(0x21, manager),
-                                                            _dataport(0x60),
-                                                            _commandport(0x64) {
+KeyboardEventHandler::KeyboardEventHandler() {}
+
+void KeyboardEventHandler::OnKeyDown(const wchar_t* /*key*/) {}
+void KeyboardEventHandler::OnKeyUp(const wchar_t* /*key*/) {}
+
+KeyboardDriver::KeyboardDriver(
+    InterruptManager* manager,
+    KeyboardEventHandler* handler) : InterruptHandler(0x21, manager),
+                                     _dataport(0x60),
+                                     _commandport(0x64) {
+    this->_handler = handler;
+}
+KeyboardDriver::~KeyboardDriver() {}
+
+void KeyboardDriver::Activate() {
     while (_commandport.Read() & 0x01) {
         _dataport.Read();
     }
@@ -16,11 +28,14 @@ KeyboardDriver::KeyboardDriver(InterruptManager* manager) : InterruptHandler(0x2
 
     _dataport.Write(0xF4);
 }
-KeyboardDriver::~KeyboardDriver() {}
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
     uint8_t key = _dataport.Read();
     static bool __shift = false;
+
+    if (_handler == 0) {
+        return esp;
+    }
 
     switch (key) {
         case 0xFA:
@@ -28,131 +43,131 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
         case 0xC5:
             break;
         case 0x02:
-            __shift ? printf("!") : printf("1");
+            __shift ? _handler->OnKeyDown(L"!") : _handler->OnKeyDown(L"1");
             break;
         case 0x03:
-            __shift ? printf("\"") : printf("2");
+            __shift ? _handler->OnKeyDown(L"\"") : _handler->OnKeyDown(L"2");
             break;
         case 0x04:
-            __shift ? printf("£") : printf("3");
+            __shift ? _handler->OnKeyDown(L"€") : _handler->OnKeyDown(L"3");
             break;
         case 0x05:
-            __shift ? printf("$") : printf("4");
+            __shift ? _handler->OnKeyDown(L"$") : _handler->OnKeyDown(L"4");
             break;
         case 0x06:
-            __shift ? printf("%") : printf("5");
+            __shift ? _handler->OnKeyDown(L"%") : _handler->OnKeyDown(L"5");
             break;
         case 0x07:
-            __shift ? printf("^") : printf("6");
+            __shift ? _handler->OnKeyDown(L"^") : _handler->OnKeyDown(L"6");
             break;
         case 0x08:
-            __shift ? printf("&") : printf("7");
+            __shift ? _handler->OnKeyDown(L"&") : _handler->OnKeyDown(L"7");
             break;
         case 0x09:
-            __shift ? printf("*") : printf("8");
+            __shift ? _handler->OnKeyDown(L"*") : _handler->OnKeyDown(L"8");
             break;
         case 0x0A:
-            __shift ? printf("(") : printf("9");
+            __shift ? _handler->OnKeyDown(L"(") : _handler->OnKeyDown(L"9");
             break;
         case 0x0B:
-            __shift ? printf(")") : printf("0");
+            __shift ? _handler->OnKeyDown(L")") : _handler->OnKeyDown(L"0");
             break;
 
         case 0x10:
-            __shift ? printf("Q") : printf("q");
+            __shift ? _handler->OnKeyDown(L"Q") : _handler->OnKeyDown(L"q");
             break;
         case 0x11:
-            __shift ? printf("W") : printf("w");
+            __shift ? _handler->OnKeyDown(L"W") : _handler->OnKeyDown(L"w");
             break;
         case 0x12:
-            __shift ? printf("E") : printf("e");
+            __shift ? _handler->OnKeyDown(L"E") : _handler->OnKeyDown(L"e");
             break;
         case 0x13:
-            __shift ? printf("R") : printf("r");
+            __shift ? _handler->OnKeyDown(L"R") : _handler->OnKeyDown(L"r");
             break;
         case 0x14:
-            __shift ? printf("T") : printf("t");
+            __shift ? _handler->OnKeyDown(L"T") : _handler->OnKeyDown(L"t");
             break;
         case 0x15:
-            __shift ? printf("Y") : printf("y");
+            __shift ? _handler->OnKeyDown(L"Y") : _handler->OnKeyDown(L"y");
             break;
         case 0x16:
-            __shift ? printf("U") : printf("u");
+            __shift ? _handler->OnKeyDown(L"U") : _handler->OnKeyDown(L"u");
             break;
         case 0x17:
-            __shift ? printf("I") : printf("i");
+            __shift ? _handler->OnKeyDown(L"I") : _handler->OnKeyDown(L"i");
             break;
         case 0x18:
-            __shift ? printf("O") : printf("o");
+            __shift ? _handler->OnKeyDown(L"O") : _handler->OnKeyDown(L"o");
             break;
         case 0x19:
-            __shift ? printf("P") : printf("p");
+            __shift ? _handler->OnKeyDown(L"P") : _handler->OnKeyDown(L"p");
             break;
 
         case 0x1E:
-            __shift ? printf("A") : printf("a");
+            __shift ? _handler->OnKeyDown(L"A") : _handler->OnKeyDown(L"a");
             break;
         case 0x1F:
-            __shift ? printf("S") : printf("s");
+            __shift ? _handler->OnKeyDown(L"S") : _handler->OnKeyDown(L"s");
             break;
         case 0x20:
-            __shift ? printf("D") : printf("d");
+            __shift ? _handler->OnKeyDown(L"D") : _handler->OnKeyDown(L"d");
             break;
         case 0x21:
-            __shift ? printf("F") : printf("f");
+            __shift ? _handler->OnKeyDown(L"F") : _handler->OnKeyDown(L"f");
             break;
         case 0x22:
-            __shift ? printf("G") : printf("g");
+            __shift ? _handler->OnKeyDown(L"G") : _handler->OnKeyDown(L"g");
             break;
         case 0x23:
-            __shift ? printf("H") : printf("h");
+            __shift ? _handler->OnKeyDown(L"H") : _handler->OnKeyDown(L"h");
             break;
         case 0x24:
-            __shift ? printf("J") : printf("j");
+            __shift ? _handler->OnKeyDown(L"J") : _handler->OnKeyDown(L"j");
             break;
         case 0x25:
-            __shift ? printf("K") : printf("k");
+            __shift ? _handler->OnKeyDown(L"K") : _handler->OnKeyDown(L"k");
             break;
         case 0x26:
-            __shift ? printf("L") : printf("l");
+            __shift ? _handler->OnKeyDown(L"L") : _handler->OnKeyDown(L"l");
             break;
 
         case 0x2C:
-            __shift ? printf("Z") : printf("z");
+            __shift ? _handler->OnKeyDown(L"Z") : _handler->OnKeyDown(L"z");
             break;
         case 0x2D:
-            __shift ? printf("X") : printf("x");
+            __shift ? _handler->OnKeyDown(L"X") : _handler->OnKeyDown(L"x");
             break;
         case 0x2E:
-            __shift ? printf("C") : printf("c");
+            __shift ? _handler->OnKeyDown(L"C") : _handler->OnKeyDown(L"c");
             break;
         case 0x2F:
-            __shift ? printf("V") : printf("v");
+            __shift ? _handler->OnKeyDown(L"V") : _handler->OnKeyDown(L"v");
             break;
         case 0x30:
-            __shift ? printf("B") : printf("b");
+            __shift ? _handler->OnKeyDown(L"B") : _handler->OnKeyDown(L"b");
             break;
         case 0x31:
-            __shift ? printf("N") : printf("n");
+            __shift ? _handler->OnKeyDown(L"N") : _handler->OnKeyDown(L"n");
             break;
         case 0x32:
-            __shift ? printf("M") : printf("m");
+            __shift ? _handler->OnKeyDown(L"M") : _handler->OnKeyDown(L"m");
             break;
         case 0x33:
-            __shift ? printf("<") : printf(",");
+            __shift ? _handler->OnKeyDown(L"<") : _handler->OnKeyDown(L",");
             break;
         case 0x34:
-            __shift ? printf(">") : printf(".");
+            __shift ? _handler->OnKeyDown(L">") : _handler->OnKeyDown(L".");
             break;
         case 0x35:
-            __shift ? printf("~") : printf("-");
+            __shift ? _handler->OnKeyDown(L"~") : _handler->OnKeyDown(L"-");
             break;
 
         case 0x1C:
-            __shift ? printf("\n") : printf("\n");
+            __shift ? _handler->OnKeyDown(L"\n") : _handler->OnKeyDown(L"\n");
             break;
         case 0x39:
-            __shift ? printf(" ") : printf(" ");
+            __shift ? _handler->OnKeyDown(L" ") : _handler->OnKeyDown(L" ");
             break;
 
         case 0x2A:
@@ -163,13 +178,11 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
         case 0xB6:
             __shift = false;
             break;
-        default:
+        default
+            :
             if (key < 0x80) {  //ignore unhandled key up events
-                char* foo = (char*)"KEYBOARD 0x00";
-                const char* hex = "0123456789ABCDEF";
-                foo[11] = hex[(key >> 4) & 0x0F];
-                foo[12] = hex[key & 0x0F];
-                printf(foo);
+                printf("KBD: 0x");
+                printfHex(key);
                 printf("\n");
                 break;
             }

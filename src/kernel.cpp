@@ -1,11 +1,6 @@
-/* 
- *  kernel.cpp 
- *  Author: Fergal Moran
- *  Copyright: 2020 Fergal Moran
- *  
- *  BSD License - do what you want
- */
-
+#include "../include/blockmousehandler.h"
+#include "../include/driver.h"
+#include "../include/echokeyboardhandler.h"
 #include "../include/gdt.h"
 #include "../include/interrupts.h"
 #include "../include/keyboard.h"
@@ -28,9 +23,22 @@ extern "C" void ferglos_Main(const void* /*multiboot_structure*/, uint32_t /*mb_
 
     GlobalDescriptorTable gdt;
     InterruptManager interrupts(&gdt);
-    KeyboardDriver keyboard(&interrupts);
-    MouseDriver mouse(&interrupts);
 
+    printf("Initialising hardware\n");
+    DriverManager drvManager;
+
+    EchoKeyboardHandler kbHandler;
+    KeyboardDriver keyboard(&interrupts, &kbHandler);
+    drvManager.AddDriver(&keyboard);
+
+    BlockMouseHandler mouseHandler;
+    MouseDriver mouse(&interrupts, &mouseHandler);
+    drvManager.AddDriver(&mouse);
+
+    printf("Initialising driver manager\n");
+    drvManager.ActivateAll();
+
+    printf("Initialising interrupt handler\n");
     interrupts.Activate();
 
     while (1)
