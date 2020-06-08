@@ -1,7 +1,7 @@
-#include "../include/mouse.h"
-
-#include "../include/stdio.h"
-
+#include <common/stdio.h>
+#include <drivers/mouse.h>
+namespace ferglos {
+namespace drivers {
 MouseEventHandler::MouseEventHandler() {}
 
 void MouseEventHandler::OnActivate() {}
@@ -65,3 +65,5 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp) {
     }
     return esp;
 }
+}  // namespace drivers
+}  // namespace ferglos

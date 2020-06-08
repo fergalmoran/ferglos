@@ -1,9 +1,14 @@
-#ifndef __INTERRUPTS_H
-#define __INTERRUPTS_H
-#include "gdt.h"
-#include "port.h"
-#include "types.h"
+#ifndef __FERGLOS_HARDWARE_INTERRUPTS_H
+#define __FERGLOS_HARDWARE_INTERRUPTS_H
 
+#include <common/types.h>
+#include <gdt.h>
+#include <hardware/port.h>
+
+using namespace ferglos::drivers;
+
+namespace ferglos {
+namespace hardware {
 class InterruptManager;
 class InterruptHandler {
    protected:
@@ -61,7 +66,7 @@ class InterruptManager {
     void Activate();
     void Deactivate();
 
-    static uint32_t HandleInterrupt(uint8_t interruptNumber, uint32_t esp);
+    static uint32_t HandleInterrupt(uint8_t interrupt, uint32_t esp);
     uint32_t DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp);
 
     static void IgnoreInterruptRequest();
@@ -69,4 +74,6 @@ class InterruptManager {
     static void HandleInterruptRequest0x01();
     static void HandleInterruptRequest0x0C();
 };
+}  // namespace hardware
+}  // namespace ferglos
 #endif

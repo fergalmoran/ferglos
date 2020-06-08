@@ -1,14 +1,11 @@
-/* 
- *  port.h 
- *  Author: Fergal Moran
- *  Copyright: 2020 Fergal Moran
- *  
- *  BSD License - do what you want
- */
-#ifndef __PORT_H
-#define __PORT_H
+#ifndef __FERGLOS_HARDWARE_PORT_H
+#define __FERGLOS_HARDWARE_PORT_H
 
-#include "types.h"
+#include <common/types.h>
+using namespace ferglos::common;
+
+namespace ferglos {
+namespace drivers {
 
 class Port {
    protected:
@@ -51,5 +48,6 @@ class Port32Bit : public Port {
     virtual void Write(uint32_t data);
     virtual uint32_t Read();
 };
-
+}  // namespace drivers
+}  // namespace ferglos
 #endif

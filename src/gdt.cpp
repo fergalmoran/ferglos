@@ -1,13 +1,6 @@
-/* 
- *  gdt.cpp 
- *  Author: Fergal Moran
- *  Copyright: 2020 Fergal Moran
- *  
- *  BSD License - do what you want
- */
-
-#include "../include/gdt.h"
-
+#include <gdt.h>
+using namespace ferglos::common;
+namespace ferglos {
 GlobalDescriptorTable::GlobalDescriptorTable() : nullSegmentSelector(0, 0, 0),
                                                  unusedSegmentSelector(0, 0, 0),
                                                  codeSegmentSelector(0, 64 * 1024 * 1024, 0x9A),
@@ -75,4 +68,5 @@ uint32_t GlobalDescriptorTable::SegmentDescriptor::Limit() {
         result = (result << 12) | 0xFFF;
     }
     return result;
+}
 }

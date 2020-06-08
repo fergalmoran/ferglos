@@ -1,6 +1,9 @@
-#include "../include/stdio.h"
+#include <common/stdio.h>
+#include <common/types.h>
+using namespace ferglos::common;
 
-#include "../include/types.h"
+namespace ferglos {
+namespace common {
 extern uint8_t x = 0, y = 0;
 
 void printf(const char* str) {
@@ -69,3 +72,5 @@ void clear() {
         }
     }
 }
+}  // namespace common
+}  // namespace ferglos

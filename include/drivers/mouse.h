@@ -1,10 +1,15 @@
-#ifndef __MOUSE_H
-#define __MOUSE_H
+#ifndef __FERGLOS_DRIVERS_MOUSE_H
+#define __FERGLOS_DRIVERS_MOUSE_H
 
-#include "driver.h"
-#include "interrupts.h"
-#include "port.h"
-#include "types.h"
+#include <common/types.h>
+#include <drivers/driver.h>
+#include <hardware/interrupts.h>
+#include <hardware/port.h>
+using namespace ferglos::common;
+using namespace ferglos::hardware;
+
+namespace ferglos {
+namespace drivers {
 class MouseEventHandler {
    private:
    public:
@@ -34,4 +39,6 @@ class MouseDriver : public InterruptHandler, public Driver {
     virtual uint32_t HandleInterrupt(uint32_t esp);
     virtual void Activate();
 };
+}  // namespace drivers
+}  // namespace ferglos
 #endif

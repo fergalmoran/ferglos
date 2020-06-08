@@ -1,7 +1,7 @@
-#include "../include/keyboard.h"
-
-#include "../include/stdio.h"
-
+#include <common/stdio.h>
+#include <drivers/keyboard.h>
+namespace ferglos {
+namespace drivers {
 KeyboardEventHandler::KeyboardEventHandler() {}
 
 void KeyboardEventHandler::OnKeyDown(const wchar_t* /*key*/) {}
@@ -190,3 +190,5 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp) {
 
     return esp;
 }
+}  // namespace drivers
+}  // namespace ferglos

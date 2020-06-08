@@ -1,5 +1,6 @@
-#include "../include/driver.h"
-
+#include <drivers/driver.h>
+namespace ferglos {
+namespace drivers {
 Driver::Driver() {}
 Driver::~Driver() {}
 
@@ -21,3 +22,5 @@ void DriverManager::ActivateAll() {
         _drivers[i]->Activate();
     }
 }
+}  // namespace drivers
+}  // namespace ferglos

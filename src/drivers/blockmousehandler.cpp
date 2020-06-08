@@ -1,7 +1,6 @@
-#include "../include/blockmousehandler.h"
-
-#include "stdio.h"
-
+#include <drivers/blockmousehandler.h>
+namespace ferglos {
+namespace drivers {
 BlockMouseHandler::BlockMouseHandler() {
     //flip bit in center of screen - so mousepointer is initially here
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
@@ -44,3 +43,5 @@ void BlockMouseHandler::OnMouseMove(int xoffset, int yoffset) {
         ((VideoMemory[80 * _screenY + _screenX] & 0x0F00) << 4) |
         ((VideoMemory[80 * _screenY + _screenX] & 0x00FF));
 }
+}  // namespace drivers
+}  // namespace ferglos

@@ -1,12 +1,15 @@
-#include "../include/blockmousehandler.h"
-#include "../include/driver.h"
-#include "../include/echokeyboardhandler.h"
-#include "../include/gdt.h"
-#include "../include/interrupts.h"
-#include "../include/keyboard.h"
-#include "../include/mouse.h"
-#include "../include/stdio.h"
-#include "../include/types.h"
+#include <common/stdio.h>
+#include <common/types.h>
+#include <drivers/blockmousehandler.h>
+#include <drivers/driver.h>
+#include <drivers/echokeyboardhandler.h>
+#include <drivers/keyboard.h>
+#include <drivers/mouse.h>
+#include <gdt.h>
+#include <hardware/interrupts.h>
+
+using namespace ferglos;
+using namespace ferglos::hardware;
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;

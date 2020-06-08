@@ -1,15 +1,9 @@
-/* 
- *  gdt.h 
- *  Author: Fergal Moran
- *  Copyright: 2020 Fergal Moran
- *  
- *  BSD License - do what you want
- */
+#ifndef __FERGLOS_GDT_H
+#define __FERGLOS_GDT_H
+#include <common/types.h>
+using namespace ferglos::common;
 
-#ifndef __GDT_H
-#define __GDT_H
-#include "types.h"
-
+namespace ferglos {
 /*
     The Global Descriptor Table (GDT) is a data structure used by Intel x86-family processors 
     starting with the 80286 in order to define the characteristics of the various memory areas 
@@ -50,5 +44,5 @@ class GlobalDescriptorTable {
     uint16_t CodeSegmentSelector();
     uint16_t DataSegmentSelector();
 };
-
+}  // namespace ferglos
 #endif

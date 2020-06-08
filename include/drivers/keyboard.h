@@ -1,10 +1,16 @@
-#ifndef __KEYBOARD_H
-#define __KEYBOARD_H
+#ifndef __FERGLOS_DRIVERS_KEYBOARD_H
+#define __FERGLOS_DRIVERS_KEYBOARD_H
+#include <common/stdio.h>
+#include <common/types.h>
+#include <drivers/driver.h>
+#include <hardware/interrupts.h>
+#include <hardware/port.h>
 
-#include "driver.h"
-#include "interrupts.h"
-#include "port.h"
-#include "types.h"
+using namespace ferglos::common;
+using namespace ferglos::hardware;
+
+namespace ferglos {
+namespace drivers {
 
 class KeyboardEventHandler {
    public:
@@ -27,4 +33,6 @@ class KeyboardDriver : public InterruptHandler, public Driver {
     virtual uint32_t HandleInterrupt(uint32_t esp);
     virtual void Activate();
 };
+}  // namespace drivers
+}  // namespace ferglos
 #endif

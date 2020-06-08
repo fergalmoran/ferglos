@@ -1,6 +1,8 @@
-#include "../include/interrupts.h"
+#include <common/stdio.h>
+#include <hardware/interrupts.h>
 
-#include "../include/stdio.h"
+using namespace ferglos::common;
+using namespace ferglos::hardware;
 
 InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager) {
     this->_interruptNumber = interruptNumber;
@@ -91,9 +93,9 @@ void InterruptManager::SetInterruptDescriptorTableEntries(
     _interruptDescriptorTable[interruptNumber].reserved = 0;
 }
 
-uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp) {
+uint32_t InterruptManager::HandleInterrupt(uint8_t interrupt, uint32_t esp) {
     if (_activeInterruptManager != 0) {
-        return _activeInterruptManager->DoHandleInterrupt(interruptNumber, esp);
+        return _activeInterruptManager->DoHandleInterrupt(interrupt, esp);
     }
     return esp;
 }

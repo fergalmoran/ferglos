@@ -1,5 +1,7 @@
-#ifndef __DRIVER_H
-#define __DRIVER_H
+#ifndef __FERGLOS_DRIVERS_DRIVER_H
+#define __FERGLOS_DRIVERS_DRIVER_H
+namespace ferglos {
+namespace drivers {
 class Driver {
    public:
     Driver();
@@ -22,4 +24,6 @@ class DriverManager {
 
     void ActivateAll();
 };
+}  // namespace drivers
+}  // namespace ferglos
 #endif

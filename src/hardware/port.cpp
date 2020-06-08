@@ -1,12 +1,8 @@
-/* 
- *  port.cpp 
- *  Author: Fergal Moran
- *  Copyright: 2020 Fergal Moran
- *  
- *  BSD License - do what you want
- */
-#include "../include/port.h"
+#include <hardware/port.h>
+using namespace ferglos::common;
 
+namespace ferglos {
+namespace drivers {
 Port::Port(uint16_t portNumber) {
     this->portNumber = portNumber;
 }
@@ -69,3 +65,5 @@ uint32_t Port32Bit::Read() {
                      : "Nd"(portNumber));
     return result;
 }
+}  // namespace drivers
+}  // namespace ferglos
