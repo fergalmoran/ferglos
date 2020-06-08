@@ -2,7 +2,7 @@
 .set FLAGS, (1<<0 | 1<<1)
 .set CHECKSUM, -(MAGIC + FLAGS) ; #GRUB needs all this stuff, I'll figure out why later
 
-.section multiboot
+.section .multiboot
     .long MAGIC
     .long FLAGS
     .long CHECKSUM
